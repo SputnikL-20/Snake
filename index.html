@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- <link href="toast.min.css" rel="stylesheet"> -->
+	<!-- <script src="toast.min.js"></script> -->
+    <title>Document</title>
+
+    <style>
+        table{
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        th, td {
+			width: 8px;
+			height: 8px;
+			font-size: 40%;
+            padding: 0;
+			margin: 0;
+            border: 0.1px solid #cdcdcd;
+			cursor: crosshair;
+        }
+        canvas{
+			font-size: 40%;
+
+			margin: 0 auto;
+			padding-left: 25%;
+			padding-bottom: 5%;
+			/* background:gray;
+            border: none;
+			cursor: crosshair; */
+        }
+    </style>
+    <script type="text/javascript">
+
+	function mapPsetRandom() {
+		var min = 10
+		var max = 110;
+		<!-- var x = Math.floor(Math.random() * 110); -->
+		var x = Math.floor(Math.random() * (max - min) + min);
+		<!-- if ( String(x).length == 1 ) { -->
+			<!-- x = "0" + x; -->
+		<!-- } -->
+		return x;
+	}   	
+	
+	function drawPast( id_canvas ) {
+		var canvas = document.getElementById( id_canvas );
+		try {
+			if (canvas.getContext) {
+				var ctx = canvas.getContext('2d');
+				ctx.fillRect(0, 0, 8, 8);
+			}		
+		} catch (e) {
+			null;
+		}
+	}
+	
+	function drawPastClear( id_canvas ) {
+		var canvas = document.getElementById( id_canvas );
+		try {
+			if (canvas.getContext) {
+				var ctx = canvas.getContext('2d');
+				ctx.clearRect(0, 0, 8, 8);
+			}		
+		} catch (e) {
+			null;
+		}
+	}
+	
+    </script>
+</head>
+<body>
+<div>
+	<script>
+
+	var apple = 0;
+	var timeoutId;
+	var timeoutIdClear;
+	var speed = 700;
+	var speedClear = 700;
+	var shape_mod = [55];
+	var shape_old = [];
+	var left_wall = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];	
+	var up_wall = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
+	var right_wall = [19, 29, 39, 49, 59, 69, 79, 89, 99, 109];		
+	var down_wall = [100, 101, 102, 103, 104, 105, 106, 107, 108, 109];
+	var arg =  [ mapPsetRandom() ];
+
+		function appleRandom() {
+			drawShapePaint(arg);
+			apple = arg;
+			setTimeout(fireWall, 10000, arg, 0 );
+			arg = [ mapPsetRandom() ];
+		}
+
+		function fireWall( arg, i ) {
+
+			if ( i !== 10) {
+				i !== 0 ? drawShapePaint( arg ) : null;
+				setTimeout( clearShape, 150, arg );
+				setTimeout( fireWall, 300, arg, ++i );				
+			} else {
+				apple.pop();
+				setTimeout( appleRandom, 15000);
+			}
+		}
+
+		function snakeValidate() 
+		{
+			if ( apple[0] == shape_mod[0] ) {
+				shape_mod.splice(0, 0, apple[0]);
+				apple.pop();
+				console.log(shape_mod);
+				setTimeout( appleRandom, 15000);
+			}
+		}
+
+		function drawArea()
+		{
+			document.writeln("<table>");		
+			for (var j = 1; j < 11; j++) {
+				document.writeln("<tr>");
+
+				for (var i = 0; i < 10; i++) {
+					document.writeln("<td id=" + j + "" + i + "><canvas id='canva_" + j + "" + i + "' width='4' height='4'></canvas></td>");
+				}
+				document.writeln("</tr>");
+			}
+			document.writeln("</table>");	
+
+			drawSnakeLeft();		
+			<!-- appleRandom(); -->
+			setTimeout( appleRandom, 15000);
+		}
+		
+
+		function drawSnakeLeft() 
+		{	
+			clearTimeout(timeoutIdClear);
+			clearShape(shape_old);
+			clearTimeout(timeoutId);
+			drawShapePaint(shape_mod);
+			timeoutIdClear = setTimeout( clearShape, speedClear, shape_mod);
+			orientation_new.left();
+			timeoutId = setTimeout( drawSnakeLeft, speed);
+		}
+		
+		function drawSnakeUp() 
+		{	
+			clearTimeout(timeoutIdClear);
+			clearShape(shape_old);
+			clearTimeout(timeoutId);
+			drawShapePaint(shape_mod);
+			timeoutIdClear = setTimeout( clearShape, speedClear, shape_mod);
+			orientation_new.up();
+			timeoutId = setTimeout( drawSnakeUp, speed);
+		}
+		
+		function drawSnakeRight() 
+		{	
+			clearTimeout(timeoutIdClear);
+			clearShape(shape_old);
+			clearTimeout(timeoutId);
+			drawShapePaint(shape_mod);
+			timeoutIdClear = setTimeout( clearShape, speedClear, shape_mod);	
+			orientation_new.right();
+			timeoutId = setTimeout( drawSnakeRight, speed);
+		}
+		
+		function drawSnakeDown() 
+		{	
+			clearTimeout(timeoutIdClear);
+			clearShape(shape_old);
+			clearTimeout(timeoutId);
+			drawShapePaint(shape_mod);
+			timeoutIdClear = setTimeout( clearShape, speedClear, shape_mod);
+			orientation_new.down();
+			timeoutId = setTimeout( drawSnakeDown, speed);
+		}
+
+		function drawShapePaint(shape) {
+			
+			for ( var i = 0; i < shape.length; i++ ) {
+				document.getElementById(shape[i].toString()).style.backgroundColor = 'gray';
+				document.getElementById(shape[i].toString()).style.borderColor = 'black'
+				drawPast( 'canva_' + shape[i] );	
+			}
+		}
+		
+		function clearShape(shape) {
+		
+			for ( var i = 0; i < shape.length; i++) {
+				document.getElementById(shape[i].toString()).style.background = 'none';
+				document.getElementById(shape[i].toString()).style.border = '0.1px solid #cdcdcd';
+				drawPastClear( 'canva_' + shape[i] );	
+			}
+		}
+		
+
+		var orientation_new = {
+			left: function () {
+			
+					var tmp = []; 
+					shape_old = shape_mod;				
+						
+					for ( var i = 0; i < shape_mod.length; i++ ) {
+						if ( i == 0 ) {
+							if ( left_wall.includes ( shape_mod[0] ) ) {
+								tmp[i] = shape_mod[i] + 9;
+							} else {
+							tmp[i] = shape_mod[i] - 1; 
+							}      
+						} else {
+						tmp[i] = shape_mod[i - 1];
+						}
+					}
+					<!-- console.log(tmp); -->
+					shape_mod = tmp;
+					snakeValidate();
+				},
+			up  : function () {
+			
+					var tmp = []; 
+					shape_old = shape_mod;				
+					
+					for ( var i = 0; i < shape_mod.length; i++ ) {
+						if ( i == 0 ) {
+							if ( up_wall.includes ( shape_mod[0] ) ) {
+								tmp[i] = shape_mod[i] + 90;
+							} else {
+							tmp[i] = shape_mod[i] - 10; 
+							}      
+						} else {
+						tmp[i] = shape_mod[i - 1];
+						}
+					}
+					<!-- console.log(tmp); -->
+					shape_mod = tmp;
+					snakeValidate();
+				},
+		   right: function () {
+		   
+					var tmp = []; 
+					shape_old = shape_mod;				
+					
+					for ( var i = 0; i < shape_mod.length; i++ ) {
+						if ( i == 0 ) {
+							if ( right_wall.includes ( shape_mod[0] ) ) {
+								tmp[i] = shape_mod[i] - 9;
+							} else {
+							tmp[i] = shape_mod[i] + 1; 
+							}      
+						} else {
+						tmp[i] = shape_mod[i - 1];
+						}
+					}
+					<!-- console.log(tmp); -->
+					shape_mod = tmp;
+					snakeValidate();
+				},
+			down: function () {
+			
+					var tmp = []; 
+					shape_old = shape_mod;				
+					
+					for ( var i = 0; i < shape_mod.length; i++ ) {
+						if ( i == 0 ) {
+							if ( down_wall.includes ( shape_mod[0] ) ) {
+								tmp[i] = shape_mod[i] - 90;
+							} else {
+							tmp[i] = shape_mod[i] + 10; 
+							}      
+						} else {
+						tmp[i] = shape_mod[i - 1];
+						}
+					}
+					<!-- console.log(tmp); -->
+					shape_mod = tmp;
+					snakeValidate();
+				}
+		};
+		
+		
+		function queueNumber() {
+
+		  var snakeTurn = [1]; // {4,5,3,8,9,7};
+
+			  for(var j = 0; j < snakeTurn.length; j++) {
+				console.log(snakeTurn[j] + " ");
+			  }
+			//setTimeout(queueNumber, 1000);
+		}
+		
+		
+		drawArea();
+		
+		document.addEventListener('keydown', function(event) 
+		{
+			if (event.code == 'ArrowLeft') {
+				<!-- clearShape( shape_mod[shape_mod.length - 1] ); -->
+				drawSnakeLeft();
+				
+			} else if (event.code == 'ArrowRight') {
+			
+				drawSnakeRight();
+				
+			} else if (event.code == 'ArrowUp') {
+				<!-- clearShape( shape_mod[shape_mod.length - 1] ); -->
+				drawSnakeUp();
+				
+			} else if (event.code == 'ArrowDown') {
+			
+				drawSnakeDown();
+				
+			}
+		});	
+
+
+
+
+
+
+
+
+
+
+
+
+		
+		
+		function oneLeftShape(shape) {
+		
+			var left_wall = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+			shape_mod.forEach( (item) => {
+
+				if ( left_wall.findIndex ( (el) => el == item ) != -1 ) {
+					
+					shape_mod = shape.map(item => Number(item) + 9);
+				} else {
+					shape_mod = shape.map(item => Number(item) - 1);
+				}
+
+			});			
+		}
+		
+		function oneUpSnake(shape) {
+		
+			var up_wall = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
+			
+			shape_mod.forEach( (item) => {
+
+				if ( up_wall.findIndex ( (el) => el == item ) != -1 ) {
+					
+					shape_mod = shape.map(item => Number(item) + 90);
+				} else {
+					shape_mod = shape.map(item => Number(item) - 10);
+				}
+
+			});
+		}
+		
+		function oneRightShape(shape) {
+		
+			var right_wall = [19, 29, 39, 49, 59, 69, 79, 89, 99, 109];
+			
+			shape_mod.forEach( (item) => {
+
+				if ( right_wall.findIndex ( (el) => el == item ) != -1 ) {
+					
+					shape_mod = shape.map(item => Number(item) - 9);
+				} else {
+					shape_mod = shape.map(item => Number(item) + 1);
+				}
+
+			});
+		}
+		
+		function oneDownShape(shape) {
+		
+			var down_wall = [100, 101, 102, 103, 104, 105, 106, 107, 108, 109];
+			
+			shape_mod.forEach( (item) => {
+
+				if ( down_wall.findIndex ( (el) => el == item ) != -1 ) {
+					
+					shape_mod = shape.map(item => Number(item) - 90);
+				} else {
+					shape_mod = shape.map(item => Number(item) + 10);
+				}
+
+			});
+
+			<!-- console.log(shape_mod); -->
+		}
+		
+	</script>
+</div>
+
+</body>
+</html>
